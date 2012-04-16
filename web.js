@@ -269,6 +269,10 @@ webSocket.configure(function () {
 
 // Heroku demands that Socket.io not use websockets at this time.. annoying
 
+
+
+appServer.listen(port)
+
 webSocket.sockets.on('connection', function (socket) {
   //socket.emit('news', { hello: 'world' });
 
@@ -279,8 +283,6 @@ webSocket.sockets.on('connection', function (socket) {
     console.log(data);
   });
 });
-
-appServer.listen(port)
 
 // Put a message in the console verifying that the HTTP server is up and running
 console.log("Server listening on " + port);
