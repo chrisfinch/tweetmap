@@ -253,10 +253,10 @@ var appServer = app.createServer(function (request, response) {
     } else {  
         load_static_web_file(uri, response);  
     }
-}).listen(8124);
+}).listen(process.env.PORT || 3000);
 
 // Put a message in the console verifying that the HTTP server is up and running
-console.log("Server running at http://127.0.0.1:8124/");
+console.log("Server running at http://127.0.0.1:", process.env.PORT || 3000);
 
 
 var webSocket = io.listen(appServer);
