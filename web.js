@@ -6,6 +6,8 @@ var app    = require("http"),
 	events 	= require("events"),
 	util 	= require("util"),
 	io 		= require("socket.io");
+
+var port = process.env.PORT || 3000; // Heroku..
 	
 /**
  * Handle the serving of files with static content
@@ -253,10 +255,10 @@ var appServer = app.createServer(function (request, response) {
     } else {  
         load_static_web_file(uri, response);  
     }
-}).listen(process.env.PORT || 3000);
+}).listen(port);
 
 // Put a message in the console verifying that the HTTP server is up and running
-console.log("Server running at http://127.0.0.1:", process.env.PORT || 3000);
+console.log("Server listening on " + port);
 
 
 var webSocket = io.listen(appServer);
