@@ -129,7 +129,7 @@ gTweets.prototype = {
 
 	webSocket : function () {
 		var i = this;
-		i.socket = io.connect('http://localhost');
+		i.socket = io.connect(window.location.hostname);
 		i.socket.on('geoTweet', function (data) {
 			i.placeMarker(data);
 			//socket.emit('my other event', { my: 'data' });

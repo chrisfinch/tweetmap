@@ -255,10 +255,9 @@ var appServer = app.createServer(function (request, response) {
     } else {  
         load_static_web_file(uri, response);  
     }
-}).listen(port);
+});
 
-// Put a message in the console verifying that the HTTP server is up and running
-console.log("Server listening on " + port);
+
 
 var webSocket = io.listen(appServer);
 
@@ -281,3 +280,7 @@ webSocket.sockets.on('connection', function (socket) {
   });
 });
 
+appServer.listen(port)
+
+// Put a message in the console verifying that the HTTP server is up and running
+console.log("Server listening on " + port);
