@@ -1,0 +1,8 @@
+{
+  "name": "node-example",
+  "version": "0.0.1",
+  "dependencies": {
+    "ntwitter": "0.3.0",
+    "socket.io": "latest"
+  }
+}
