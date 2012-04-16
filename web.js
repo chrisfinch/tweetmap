@@ -258,6 +258,11 @@ var appServer = app.createServer(function (request, response) {
 // Put a message in the console verifying that the HTTP server is up and running
 console.log("Server running at http://127.0.0.1:8124/");
 
+// Heroku demands that Socket.io not use websockets at this time.. annoying
+io.configure(function () { 
+  io.set("transports", ["xhr-polling"]); 
+  io.set("polling duration", 10); 
+});
 
 var webSocket = io.listen(appServer);
 webSocket.set('log level', 1);
