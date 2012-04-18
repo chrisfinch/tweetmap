@@ -2,18 +2,6 @@ $(function () {
 	return new gTweets;
 });
 
-        // var tweet_list = $("#tweets");  
- 
-        // function load_tweets() {
-        //     $.getJSON("/twitter?nowplaying", function(tweets) {
-        //         $.each(tweets.results, function() {
-        //             $("<li>").append(this.text, this.location, this.geocode).prependTo(tweet_list);
-        //         });
-        //     });
-        // }  
- 
-        // // Request tweets every five seconds
-        // setInterval(load_tweets, 5000);
 var gTweets = function () {
 	this.init()
 };
@@ -38,93 +26,102 @@ gTweets.prototype = {
 								{ saturation: -100 }
 							]
 						}
-						// ,
-						// {
-						// 	featureType: "poi.park",
-						// 	stylers: [
-						// 		{ hue: "#ff0023" },
-						// 		{ saturation: 40 }
-						// 	]
-						// }
 					]
 		};
+		
+		// i.styles = {
+		//     'Black and White': [{
+		//         featureType: "all",
+		//         stylers: [{
+		//             saturation: -100
+		//         }]
+		//     }],
+		//     'Midnight': [{
+		//         featureType: 'all',
+		//         stylers: [{
+		//             hue: '#0000b0'
+		//         }, {
+		//             invert_lightness: 'true'
+		//         }, {
+		//             saturation: -30
+		//         }]
+		//     }]
+		// };
 
 		i.map = new google.maps.Map(document.getElementById('map_canvas'), this.mapOptions);
+		
+		google.maps.event.addListenerOnce(i.map, "idle", function(){
+			for (var s in i.styles) {
+				// console.log(i.styles[s], s);
+				// var style = new google.maps.StyledMapType(i.styles[s], {name: s});
+				// i.map.mapTypes.set('bw', style);
+			}		
+		});
+
 		i.geoCoder = new google.maps.Geocoder;
-		i.heatMap();
-	},
-
-	loadTweets : function () {
-		var i = this;
-		i.tweets = [];
-
-		$.getJSON("/twitter?nowplaying", function(tweets) {
-			$.each(tweets.results, function(x, y) {
-				
-				i.tweets.push({
-					text: this.text,
-					loc: this.location,
-					geo: this.geocode
-				});
-
-				console.log(this.text, this.location, this.geocode);
-
-				if (x == tweets.results.length) {
-					i.tweetsTomarkers();
-				}
-
-			});
-		});		
+		//i.heatMap(); broken
 	},
 
 	placeMarker : function (data) {
 		var i = this;
 
+		if (typeof data.geo.coordinates.lat == 'function') {
+			var myLatlng = data.geo.coordinates;
+		} else {
 			var myLatlng = new google.maps.LatLng(data.geo.coordinates[0], data.geo.coordinates[1]);
+		}
 
-			var marker = new google.maps.Marker({
-			position: myLatlng,
+		var marker = new google.maps.Marker({
+		position: myLatlng,
+		map: i.map,
+		title:data.text,
+		animation: google.maps.Animation.DROP,
+		draggable: false
+		});
+
+		marker.setMap(i.map);
+
+		var a = setTimeout(function () {
+			marker.setMap(null); // removed
+		}, 90000); // 1m30s time out
+
+        var infowindow = new InfoBubble({
 			map: i.map,
-			title:data.text,
-			animation: google.maps.Animation.DROP,
-			draggable: false
-			});
+			content: '<div class="phoneytext">'+data.text+'</div>',
+			shadowStyle: 1,
+			padding: 0,
+			backgroundColor: 'rgb(57,57,57)',
+			borderRadius: 4,
+			arrowSize: 10,
+			borderWidth: 1,
+			borderColor: '#2c2c2c',
+			disableAutoPan: true,
+			hideCloseButton: true,
+			arrowPosition: 30,
+			backgroundClassName: 'phoney',
+			arrowStyle: 2
+        });
 
-			marker.setMap(i.map);
-			i.heatmap.addDataPoint(data.geo.coordinates[0],data.geo.coordinates[1],1);
-
-			var infowindow = new google.maps.InfoWindow({
-			    content: data.text
+		google.maps.event.addListener(marker, 'mouseover', function() {
+			infowindow.open(i.map,marker);
+			google.maps.event.addListener(marker, 'mouseout', function() {
+				infowindow.close();
 			});
-
-			google.maps.event.addListener(marker, 'mouseover', function() {
-			  infowindow.open(i.map,marker);
-			  google.maps.event.addListener(marker, 'mouseout', function() {
-			  	infowindow.close();
-			  });
-			});
+		});
 	},
 
 	getGeo : function (data) {
 		var i = this;
 		i.geoCoder.geocode( { 'address': data.user.location}, function(results, status) {
-      if (status == google.maps.GeocoderStatus.OK) {
-
-      	//console.log(results, results[0].geometry.location.Ya, results[0].geometry.location.Yz);
-
-      	data.geo = {
-			'coordinates': [results[0].geometry.location.Ya, results[0].geometry.location.Za]
-      	};
-      	i.placeMarker(data);
-        // map.setCenter(results[0].geometry.location);
-        // var marker = new google.maps.Marker({
-        //     map: map,
-        //     position: results[0].geometry.location
-        // });
-      } else {
-        console.log("Geocode was not successful for the following reason: " + status);
-      }
-    });
+			if (status == google.maps.GeocoderStatus.OK) {
+				data.geo = {
+					'coordinates': results[0].geometry.location
+				};
+				i.placeMarker(data);
+			} else {
+				console.log("Geocode was not successful for the following reason: " + status);
+			}
+		});
 	},
 
 	webSocket : function () {
@@ -134,19 +131,9 @@ gTweets.prototype = {
 			i.placeMarker(data);
 			//socket.emit('my other event', { my: 'data' });
 		});
-
 		i.socket.on('locTweet', function (data) {
 			i.getGeo(data);
 			//socket.emit('my other event', { my: 'data' });
-		});
-	},
-
-	heatMap : function () {
-		var i = this;
-		i.heatmap = new HeatmapOverlay(i.map, {"radius":15, "visible":true, "opacity":60});
-
-		google.maps.event.addListenerOnce(i.map, "idle", function(){
-			heatmap.setDataSet(testData);
 		});
 	}
 }
