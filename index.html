@@ -7,9 +7,9 @@
   <script type="text/javascript"
   src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBqcQ6gI4cfPLNZC-ebQGGGOctTuKNXncw&sensor=false">
   </script>
+  <link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
   <script src="/socket.io/socket.io.js"></script>
   <script type="text/javascript" src="/js/infobubble-compiled.js"></script>
-  <script type="text/javascript" src="/js/heatmap-gmaps.js"></script>
   <script type="text/javascript" src="/js/globalTweets.js"></script>
   <link rel="stylesheet" type="text/css" href="/css/reset.css">
   <link rel="stylesheet" type="text/css" href="/css/style.css">      
@@ -17,8 +17,12 @@
 </head>
 
 <body>
-  <div id="mapContainer">
-    <div id="map_canvas" style="width: 100%; height: 100%"></div>
-  </div>
+    <div id="mapContainer">
+        <div id="map_canvas" style="width: 100%; height: 100%"></div>
+    </div>
+    <div id="tweets">
+        <ul id="tweetsList">
+        </ul>
+    </div>
 </body>
 </html>
