@@ -12,6 +12,7 @@ gTweets.prototype = {
 	init : function () {
 		this.initMaps();
 		this.webSocket();
+		this.manageSidebar();
 	},
 
 	/*
@@ -170,7 +171,16 @@ gTweets.prototype = {
 		} else {
 			tweet.hide().appendTo(i.sideBar.find('#tweetsList')).slideDown(200);
 		}
+	},
 
-		
+	manageSidebar : function () {
+		var i = this;
+		i.sideBar.find('#handle').on('click', function (event) {
+			if (i.sideBar.hasClass('open')) {
+				i.sideBar.css('right', '-'+i.sideBar.width()+'px').removeClass('open').find('#handle').html('&laquo; Show Feed');
+			} else {
+				i.sideBar.css('right', 0).addClass('open').find('#handle').html('Hide Feed &raquo;');
+			}
+		});
 	}
 }

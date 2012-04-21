@@ -1,5 +1,8 @@
 /* Map
 ============================================ */
+body {
+  overflow: hidden;
+}
 #mapContainer {
   width: 100%;
   height: 100%;
@@ -25,11 +28,32 @@
   position: absolute;
   height: 100%;
   width: 380px;
-  right: 0;
+  right: -380px;
   top: 0;
   background-color: rgba(0, 0, 0, 0.7);
-  overflow: hidden;
   border-left: 1px solid #fff;
+  -moz-box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.6);
+  -webkit-box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.6);
+  box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.6);
+  -webkit-transition: all 0.25s linear;
+  -moz-transition: all 0.25s linear;
+  -o-transition: all 0.25s linear;
+  transition: all 0.25s linear;
+}
+#handle {
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 1px solid #FFFFFF;
+  color: #FFFFFF;
+  display: block;
+  font-family: 'Droid Sans', Helvetica, Arial, sans-serif;
+  font-size: 18px;
+  height: 18px;
+  left: -158px;
+  line-height: 18px;
+  padding: 18px;
+  position: absolute;
+  top: 36px;
+  width: 102px;
   -moz-box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.6);
   -webkit-box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.6);
   box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.6);
@@ -38,6 +62,8 @@
   display: block;
   padding: 6px;
   overflow: hidden;
+  width: 100%;
+  height: 100%;
 }
 #tweetsList li {
   display: block;
