@@ -71,12 +71,20 @@ gTweets.prototype = {
 			var myLatlng = new google.maps.LatLng(data.geo.coordinates[0], data.geo.coordinates[1]);
 		}
 
+		var image = new google.maps.MarkerImage(
+			data.user.profile_image_url,
+			new google.maps.Size(32, 32),	// size
+			new google.maps.Point(0,0),	// origin
+			new google.maps.Point(16, 32)	// anchor
+		);
+
 		var marker = new google.maps.Marker({
-		position: myLatlng,
-		map: i.map,
-		title:data.text,
-		animation: google.maps.Animation.DROP,
-		draggable: false
+			position: myLatlng,
+			icon: image,
+			map: i.map,
+			title:data.text.replace(/(\r\n|\n|\r)/gm,""),
+			animation: google.maps.Animation.DROP,
+			draggable: false
 		});
 
 		marker.setMap(i.map);
@@ -87,7 +95,7 @@ gTweets.prototype = {
 
         var infowindow = new InfoBubble({
 			map: i.map,
-			content: '<div class="phoneytext">'+data.text+'</div>',
+			content: '<div class="infotext">'+data.text.replace(/(\r\n|\n|\r)/gm,"")+'</div>',
 			shadowStyle: 1,
 			padding: 0,
 			backgroundColor: 'rgb(57,57,57)',
@@ -98,7 +106,7 @@ gTweets.prototype = {
 			disableAutoPan: true,
 			hideCloseButton: true,
 			arrowPosition: 30,
-			backgroundClassName: 'phoney',
+			backgroundClassName: 'info',
 			arrowStyle: 2
         });
 
