@@ -4,6 +4,7 @@ $(function () {
 
 var gTweets = function () {
 	this.sideBar = $('#tweets');
+	this.termForm = $('#termForm');
 	this.timeOut = 90000
 	this.init();
 };
@@ -13,6 +14,7 @@ gTweets.prototype = {
 		this.initMaps();
 		this.webSocket();
 		this.manageSidebar();
+		this.manageSearchTerm();		
 	},
 
 	/*
@@ -100,6 +102,8 @@ gTweets.prototype = {
 				infowindow.close();
 			});
 		});
+
+		i.logTweet(data); // Only log tweets that actually make it to the map..
 	},
 
 	/*
@@ -121,21 +125,15 @@ gTweets.prototype = {
 
 	/*
 	* Using Socket.io - connects with the node server and recieves tweet events from the stream
-	*
-	*
 	*/
 	webSocket : function () {
 		var i = this;
 		i.socket = io.connect(window.location.hostname);
 		i.socket.on('geoTweet', function (data) {
 			i.placeMarker(data);
-			i.logTweet(data);
-			//socket.emit('my other event', { my: 'data' });
 		});
 		i.socket.on('locTweet', function (data) {
 			i.getGeo(data);
-			i.logTweet(data);
-			//socket.emit('my other event', { my: 'data' });
 		});
 	},
 
@@ -149,7 +147,7 @@ gTweets.prototype = {
 		var dateText = date.getHours()+':'+date.getMinutes()+':'+date.getSeconds();
 
 		html.push('<div class="icon"><img src="'+data.user.profile_image_url+'" width="48" height="48" /></div>');
-		html.push('<div class="title"><a href="http://twitter.com/'+data.user.screen_name+'" target="_blank" class="name">@'+data.user.name+'</a>');
+		html.push('<div class="title"><a href="http://twitter.com/'+data.user.screen_name+'" target="_blank" class="name">'+data.user.name+'</a>');
 		html.push('<span class="from"> - '+data.user.location+'</span></div>');
 		html.push('<span class="date">'+dateText+'</span>');
 		html.push('<span class="text">'+data.text+'</span>');
@@ -182,5 +180,33 @@ gTweets.prototype = {
 				i.sideBar.css('right', 0).addClass('open').find('#handle').html('Hide Feed &raquo;');
 			}
 		});
+	},
+
+	manageSearchTerm : function () {
+		var i = this,
+			field = i.termForm.find('#searchTerm');
+		i.termForm.find('#submit').on('click', function (event) {
+			event.preventDefault();
+			if (typeof i.socket != 'undefine') {
+				try {
+					i.socket.emit('changeSearch', { term: field.val() });
+					if (typeof field.data('val') == 'undefined' || field.val() != field.data('val')) {
+						field.data('val', field.val());
+					}
+				} catch (ex) {
+					console.log('Socket.io exception: '+ex);
+				}
+			}
+		});
+		field.on('focus', function () {
+			if (field.val() == field.data('val')) {
+				field.val('')
+			}
+			field.on('blur', function () {
+				if (field.val() == field.data('val') || field.val() == '') {
+					field.val(field.data('val'));
+				}				
+			});
+		})
 	}
 }

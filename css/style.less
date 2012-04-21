@@ -3,11 +3,13 @@
 
 body {
   overflow: hidden;
+  width: 100%;
+  height: 100%;  
 }
 
 #mapContainer {
 	width: 100%;
-	height: 100%;	
+	height: 100%;
 }
 
 /* Info Box
@@ -53,6 +55,7 @@ body {
   border: 1px solid #FFFFFF;
   color: #FFFFFF;
   display: block;
+  cursor: pointer;
   font-family: 'Droid Sans',Helvetica,Arial,sans-serif;
   font-size: 18px;
   height: 18px;
@@ -71,7 +74,7 @@ body {
   display: block;
   padding: 6px;
   overflow: hidden;
-  width: 100%;
+  width: 368px;
   height: 100%;
 
   li {
@@ -129,4 +132,78 @@ body {
 
   }
 
+}
+
+
+// Search Term Form
+
+#termForm {
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 1px solid #FFFFFF;
+  color: #FFFFFF;
+  display: block;
+  cursor: pointer;
+  font-family: 'Droid Sans',Helvetica,Arial,sans-serif;
+  font-size: 18px;
+  height: 34px;
+  left: 18px;
+  line-height: 18px;
+  padding: 18px;
+  position: absolute;
+  bottom: 18px;
+  width: 300px;
+  -moz-box-shadow: 0px 0px 8px 2px rgba(0,0,0,0.6);
+  -webkit-box-shadow: 0px 0px 8px 2px rgba(0,0,0,0.6);
+  box-shadow: 0px 0px 8px 2px rgba(0,0,0,0.6);  
+
+  #searchTerm {
+    background-color: #fff;
+    font-size: 16px;
+    line-height: 32px;
+    height: 32px;
+    border: 1px solid #e2e2e2;
+    -moz-box-shadow: 0 0 6px 2px #fff, 0 0 4px 1px #aaa inset;
+    -webkit-box-shadow: 0 0 6px 2px #fff, 0 0 4px 1px #aaa inset;
+    box-shadow: 0 0 6px 2px #fff, 0 0 4px 1px #aaa inset;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    padding: 0 0 0 12px;
+    width: 200px;
+    font-weight: bold;
+    font-style: italic;   
+    float: left;
+  }
+
+  #submit {
+    background-color: #000;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border: 1px solid #fff;
+    color: #fff;
+    font-weight: bold;
+    font-size: 16px;
+    line-height: 32px;
+    height: 32px;
+    width: 86px;
+    float: left;
+    font-style: italic;
+    text-transform: uppercase;   
+    margin: 0 0 0 12px; 
+    -moz-box-shadow: 0 0 6px 2px #fff, 0 0 4px 1px #aaa inset;
+    -webkit-box-shadow: 0 0 6px 2px #fff, 0 0 4px 1px #aaa inset;
+    box-shadow: 0 0 6px 2px #fff, 0 0 4px 1px #aaa inset;
+    cursor: pointer;
+
+    -webkit-transition: all 0.25s linear;  
+    -moz-transition: all 0.25s linear;  
+    -o-transition: all 0.25s linear;  
+    transition: all 0.25s linear;
+
+    &:hover {
+      background: #fff;
+      color: #000;
+    }  
+  }
 }
