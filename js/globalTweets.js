@@ -1,21 +1,46 @@
+/*
+* gTweets class for recieveing node.js server data, placing on a map and associated functions
+*
+* Dependancies: Google maps API v3 (https://developers.google.com/maps/documentation/javascript/)  
+*				Socket.IO (Websocket normalization, http://socket.io/)
+*				InfoBox (google maps InfoWindow extender for styling, http://google-maps-utility-library-v3.googlecode.com/svn/trunk/infobox/docs/reference.html)
+*
+* Fully validated with JSLint (Implied Globals 'google', 'InfoBubble' and 'io' notwithstanding)
+*
+* Author: Chris Finch
+* Date: April, 2012
+*/
+
 $(function () {
-	return new gTweets;
+	return new gTweets();
 });
 
 var gTweets = function () {
 	this.sideBar = $('#tweets');
 	this.termForm = $('#termForm');
-	this.timeOut = 90000
+	this.statsBox = $('#stats');
+	this.timeOut = 90000;
+	this.stats = {
+		totalTweetsCo: 0,
+		totalTweetsLoc: 0,		
+		goodGeo: 0,
+		badGeo: 0
+	}
 	this.init();
 };
 
 gTweets.prototype = {
+	
+	/*
+	* Initialize gTweets class
+	*/
 	init : function () {
 		this.initMaps();
 		this.webSocket();
 		this.manageSidebar();
 		this.manageSearchTerm();
-		i.messageBox('Now mapping "#nowplaying".');
+		this.statsCounter();
+		this.messageBox('Now mapping "#nowplaying".');
 	},
 
 	/*
@@ -36,18 +61,19 @@ gTweets.prototype = {
 					]
 		};
 		this.map = new google.maps.Map(document.getElementById('map_canvas'), this.mapOptions); // Init map
-		this.geoCoder = new google.maps.Geocoder; // Initialize the geocoder for later use
+		this.geoCoder = new google.maps.Geocoder(); // Initialize the geocoder for later use
 	},
 
 	/*
 	* Takes twitter data and places a marker and attached info box on the map
 	*/
 	placeMarker : function (data) {
-		var i = this;
-		if (typeof data.geo.coordinates.lat == 'function') {
-			var myLatlng = data.geo.coordinates;
+		var i = this,
+			myLatlng;
+		if (typeof data.geo.coordinates.lat == 'function') { // Are we dealing with a geocoded tweet or one direct from twitter?
+			myLatlng = data.geo.coordinates;
 		} else {
-			var myLatlng = new google.maps.LatLng(data.geo.coordinates[0], data.geo.coordinates[1]);
+			myLatlng = new google.maps.LatLng(data.geo.coordinates[0], data.geo.coordinates[1]);
 		}
 
 		var image = new google.maps.MarkerImage( // Center bottom point of image denotes tweet location
@@ -57,7 +83,7 @@ gTweets.prototype = {
 			new google.maps.Point(16, 32)
 		);
 
-		//A stab at making a better icon for the map - too involved for the scope of this project
+		// I took a stab at making a better icon for the map - too involved for the scope of this project though
 		var shadow = new google.maps.MarkerImage("img/shadow.png",
 			new google.maps.Size(49.0, 32.0),
 			new google.maps.Point(0, 0),
@@ -74,9 +100,9 @@ gTweets.prototype = {
 			draggable: false
 		});
 
-		marker.setMap(i.map);
+		marker.setMap(i.map); // Add to map!
 
-		var a = setTimeout(function () { // Remove markers after 90 seconds to prevent the map becoming clogged up
+		setTimeout(function () { // Remove markers after 90 seconds to prevent the map becoming clogged up
 			marker.setMap(null);
 		}, i.timeOut);
 
@@ -99,6 +125,13 @@ gTweets.prototype = {
 
 		google.maps.event.addListener(marker, 'mouseover', function() {
 			infowindow.open(i.map,marker);
+			setTimeout(function () { // Timeout for removal of infowindows on ios (No 'hover' event)
+				try {
+					infowindow.close();					
+				} catch (ex) {
+					// ignore
+				}
+			}, 7000);
 			google.maps.event.addListener(marker, 'mouseout', function() {
 				infowindow.close();
 			});
@@ -118,8 +151,14 @@ gTweets.prototype = {
 					'coordinates': results[0].geometry.location
 				};
 				i.placeMarker(data);
+				i.stats.goodGeo++;
 			} else {
-				console.log("Geocode was not successful for the following reason: " + status);
+				/*
+				* The google geocoding service has a query limit that is often reached when dealing with the vlume of requests from live tweet stream
+				* Unfortunately there is no easy way round this that I could find within the scope of this project..
+				*/
+				i.stats.badGeo++;
+				// console.log("Geocode was not successful for the following reason: " + status);
 			}
 		});
 	},
@@ -132,12 +171,17 @@ gTweets.prototype = {
 		i.socket = io.connect(window.location.hostname);
 		i.socket.on('geoTweet', function (data) {
 			i.placeMarker(data);
+			i.stats.totalTweetsCo++;
 		});
 		i.socket.on('locTweet', function (data) {
 			i.getGeo(data);
+			i.stats.totalTweetsLoc++;			
 		});
 	},
 
+	/*
+	* Creates a tweet element on the fly for display on the tweets list
+	*/
 	logTweet : function (data) {
 		var i = this;
 		var tweet = $('<li />').addClass('tweet');
@@ -156,6 +200,10 @@ gTweets.prototype = {
 		i.displayTweets(tweet.html(html.join('')));		
 	},
 
+	/*
+	* Displays tweets on the list, this function need re-working as often tweets appear to quickly for the list to keep up,
+	* again, outside the scope of this short project
+	*/
 	displayTweets : function (tweet) {
 		var i = this;
 		var sbHeight = i.sideBar.innerHeight();
@@ -172,6 +220,9 @@ gTweets.prototype = {
 		}
 	},
 
+	/*
+	* Allows the sidebar to be shown and hidden, accessability for devices with smaller screen resolutions
+	*/
 	manageSidebar : function () {
 		var i = this;
 		i.sideBar.find('#handle').on('click', function (event) {
@@ -183,6 +234,9 @@ gTweets.prototype = {
 		});
 	},
 
+	/*
+	* Allows the search term to be changed by emitting a socket.IO event back to the server
+	*/
 	manageSearchTerm : function () {
 		var i = this,
 			field = i.termForm.find('#searchTerm'),
@@ -205,21 +259,23 @@ gTweets.prototype = {
 				}, 3000);
 			}
 		});
-		field.on('focus', function () {
+		field.on('focus', function () { // Clear field if contents hasn't changed
 			if (field.val() == field.data('val')) {
-				field.val('')
+				field.val('');
 			}
 			field.on('blur', function () {
-				if (field.val() == field.data('val') || field.val() == '') {
+				if (field.val() == field.data('val') || field.val() === '') {
 					field.val(field.data('val'));
 				}				
 			});
-		})
+		});
 	},
 
+	/*
+	* Display a feedback message box so the user knows the search term has been accepted.
+	*/
 	messageBox : function (message) {
-		var i = this,
-			box = $('<div />').attr('id', 'popup');
+		var	box = $('<div />').attr('id', 'popup');
 		box.html(message).css({
 			'top':'60%',
 			'opacity': 0
@@ -233,5 +289,33 @@ gTweets.prototype = {
 				});
 			}, 3000);
 		});
+	},
+	
+	/*
+	* Display a few system stats, could be improved by adding ability to reset stats
+	*/
+	statsCounter : function () {
+		var	i = this,
+			html = [],
+			sec = 0,
+			tSec = 0;
+		html.push('<span class="stat total">Total Tweets processed: <span class="num"></span></span>');
+		html.push('<span class="stat goodgeo">Successful Geocoder requests: <span class="num"></span></span>');		
+		html.push('<span class="stat badgeo">unsuccessful Geocoder requests: <span class="num"></span></span>');				
+		html.push('<span class="stat av">Average tweets/second: <span class="num"></span></span>');
+		i.statsBox.html(html.join(''));
+		function update () {
+			sec++;
+			i.statsBox.find('.total .num').html(i.stats.totalTweetsLoc+i.stats.totalTweetsCo);
+			i.statsBox.find('.goodgeo .num').html(i.stats.goodGeo);
+			i.statsBox.find('.badgeo .num').html(i.stats.badGeo);
+			if (sec == 10) {
+				sec = 0;
+				tSec++;
+				var av = 
+				i.statsBox.find('.av .num').html(Math.round(((i.stats.totalTweetsLoc+i.stats.totalTweetsCo)/tSec)*100)/100);
+			}
+		}
+		setInterval(update, 100);
 	}
-}
+};

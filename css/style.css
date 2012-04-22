@@ -1,3 +1,5 @@
+/* Tweestmap LESS css file - By Chris Finch
+============================================ */
 /* Map
 ============================================ */
 body {
@@ -12,6 +14,7 @@ body {
 /* Info Box
 ============================================ */
 .info {
+  background-color: #000;
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #707070), color-stop(0.51, #5e5e5e), color-stop(0.52, #393939));
   background: -moz-linear-gradient(center top, #707070 0%, #5e5e5e 51%, #393939 52%);
 }
@@ -116,6 +119,8 @@ body {
   top: 0px;
   right: 0px;
 }
+/* Search Term Form
+============================================ */
 #termForm {
   background-color: rgba(0, 0, 0, 0.7);
   border: 1px solid #FFFFFF;
@@ -130,7 +135,7 @@ body {
   padding: 18px;
   position: absolute;
   bottom: 18px;
-  width: 300px;
+  width: auto;
   -moz-box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.6);
   -webkit-box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.6);
   box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.6);
@@ -164,7 +169,7 @@ body {
   font-size: 16px;
   line-height: 32px;
   height: 32px;
-  width: 86px;
+  width: auto;
   float: left;
   font-style: italic;
   text-transform: uppercase;
@@ -183,6 +188,8 @@ body {
   background: #fff;
   color: #000;
 }
+/* Popup message box
+============================================ */
 #popup {
   background-color: rgba(0, 0, 0, 0.7);
   border: 1px solid #FFFFFF;
@@ -205,4 +212,32 @@ body {
   font-weight: bold;
   font-style: italic;
   text-align: center;
+}
+/* Stats box
+============================================ */
+#stats {
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 1px solid #FFFFFF;
+  color: #FFFFFF;
+  display: block;
+  cursor: pointer;
+  font-family: 'Droid Sans', Helvetica, Arial, sans-serif;
+  font-size: 18px;
+  height: 64px;
+  left: 18px;
+  line-height: 18px;
+  padding: 18px;
+  position: absolute;
+  bottom: 106px;
+  width: auto;
+  -moz-box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.6);
+  -webkit-box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.6);
+  box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.6);
+}
+#stats .stat {
+  font-size: 12px;
+  line-height: 16px;
+  height: 16px;
+  float: left;
+  clear: both;
 }
