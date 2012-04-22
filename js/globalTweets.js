@@ -14,7 +14,8 @@ gTweets.prototype = {
 		this.initMaps();
 		this.webSocket();
 		this.manageSidebar();
-		this.manageSearchTerm();		
+		this.manageSearchTerm();
+		i.messageBox('Now mapping "#nowplaying".');
 	},
 
 	/*
@@ -184,18 +185,24 @@ gTweets.prototype = {
 
 	manageSearchTerm : function () {
 		var i = this,
-			field = i.termForm.find('#searchTerm');
+			field = i.termForm.find('#searchTerm'),
+			active = false;
 		i.termForm.find('#submit').on('click', function (event) {
 			event.preventDefault();
-			if (typeof i.socket != 'undefine') {
+			if (typeof i.socket != 'undefined' && !active) {
+				active = true;
 				try {
 					i.socket.emit('changeSearch', { term: field.val() });
 					if (typeof field.data('val') == 'undefined' || field.val() != field.data('val')) {
 						field.data('val', field.val());
 					}
+					i.messageBox('Now mapping "'+field.val()+'".');
 				} catch (ex) {
 					console.log('Socket.io exception: '+ex);
 				}
+				setTimeout(function () { // Normalize input to prevent stream being broken
+					active = false;
+				}, 3000);
 			}
 		});
 		field.on('focus', function () {
@@ -208,5 +215,23 @@ gTweets.prototype = {
 				}				
 			});
 		})
+	},
+
+	messageBox : function (message) {
+		var i = this,
+			box = $('<div />').attr('id', 'popup');
+		box.html(message).css({
+			'top':'60%',
+			'opacity': 0
+		}).appendTo('body').animate({
+			'top': '50%',
+			'opacity': 1
+		}, 400, function () {
+			setTimeout(function () {
+				box.fadeOut(400, function () {
+					box.remove();
+				});
+			}, 3000);
+		});
 	}
 }
