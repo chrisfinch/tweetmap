@@ -301,7 +301,7 @@ gTweets.prototype = {
 			tSec = 0;
 		html.push('<span class="stat total">Total Tweets processed: <span class="num"></span></span>');
 		html.push('<span class="stat goodgeo">Successful Geocoder requests: <span class="num"></span></span>');		
-		html.push('<span class="stat badgeo">unsuccessful Geocoder requests: <span class="num"></span></span>');				
+		html.push('<span class="stat badgeo">Unsuccessful Geocoder requests: <span class="num"></span></span>');				
 		html.push('<span class="stat av">Average tweets/second: <span class="num"></span></span>');
 		i.statsBox.html(html.join(''));
 		function update () {

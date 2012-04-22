@@ -1,7 +1,10 @@
 /* Tweestmap LESS css file - By Chris Finch
 ============================================ */
-/* Map
+/* Map (Needed for fullscreen gmaps)
 ============================================ */
+html {
+  height: 100%;
+}
 body {
   overflow: hidden;
   width: 100%;

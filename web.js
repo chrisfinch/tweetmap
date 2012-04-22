@@ -1,14 +1,30 @@
+/*
+* Node.js class for serving static web files and recieving a live twitter stream and sending to the client via websockets
+*
+* Dependancies: Node.js (http://nodejs.org/)
+*				Socket.IO (Websocket normalization, http://socket.io/)
+*				nTwitter (Node.js twitter API wrapper https://github.com/AvianFlu/ntwitter)
+*
+* Fully validated with JSLint, no errors
+*
+* Author: Chris Finch
+* Date: April, 2012
+*/
+
 // Node Modules
-var app    = require("http"),
-	url 	= require("url"),
-	path 	= require("path"),
-	fs 		= require("fs"),
-	events 	= require("events"),
-	util 	= require("util"),
-	io 		= require("socket.io");
+var app		= require("http"),
+	url		= require("url"),
+	path	= require("path"),
+	fs		= require("fs"),
+	events	= require("events"),
+	util	= require("util"),
+	io		= require("socket.io");
 
-var port = process.env.PORT || 3000; // Heroku..
+var port = process.env.PORT || 3000; // Heroku environment variable..
 
+/*
+* Loads a static file (html/assets..) from the file system and writes it in to the response
+*/
 function loadStaticFile(uri, response) {
 	
 	uri = uri == '/' ? '/index.html' : uri; // homepage route
@@ -65,6 +81,9 @@ function loadStaticFile(uri, response) {
     });
 }
 
+/*
+* Access the twitter stream using nTwitter and track a particular search term, then return the tweets to socket.IO
+*/
 function nTwitterGetTweets (socket, searchTerm) {
 	var twitter = require('ntwitter');
 	var twit = new twitter({
@@ -88,52 +107,52 @@ function nTwitterGetTweets (socket, searchTerm) {
 		stream.on('data', function (data) {
 			// console.log('.');
 			if (data.user.lang == 'en') { // we are only instersted in english language tweets
-				if (data.geo != null) {
+				if (data.geo !== null) {
 					socket.emit('geoTweet', data);					
-				} else if (data.user.location != null) {
+				} else if (data.user.location !== null) {
 					// console.log('location:', data.user.location);
 					socket.emit('locTweet', data);					
-				} else if (data.place != null) {
+				} else if (data.place !== null) {
 					// console.log('location:', data.place);
 					socket.emit('placeTweet', data);					
 				}		
 			}
 		});
 		stream.on('end', function (response) {
-			// Handle a disconnection
-			console.log('ENDED STREAM');
+			// The internet broke
+			// console.log('ENDED STREAM');
 		});
 		stream.on('destroy', function (response) {
-			// Handle a 'silent' disconnection from Twitter, no end/error event fired
-			console.log('DESTROYED STREAM');
+			// Twitter kicked us off
+			// console.log('DESTROYED STREAM');
 		});
 	});
 }
 
 // Create an HTTP server
 var appServer = app.createServer(function (request, response) {
-	// Parse the entire URI to get just the pathname
-	var uri = url.parse(request.url).pathname, query;
+	// parse pathname out of uri
+	var uri = url.parse(request.url).pathname;
 	loadStaticFile(uri, response);  
 });
 
+// Create a new instance of socket.IO
 var webSocket = io.listen(appServer);
 
+// Heroku demands that Socket.io not use websockets at this time, configuring to use long-polling.. annoying!
 webSocket.configure(function () { 
-  webSocket.set("transports", ["xhr-polling"]); 
-  webSocket.set("polling duration", 10); 
-  webSocket.set('log level', 1);
+	webSocket.set("transports", ["xhr-polling"]); 
+	webSocket.set("polling duration", 10); 
+	webSocket.set('log level', 1);
 });
-
-// Heroku demands that Socket.io not use websockets at this time.. annoying
 
 appServer.listen(port); // start the server
 
 webSocket.sockets.on('connection', function (socket) {
-	nTwitterGetTweets(socket, '#nowplaying');
-  socket.on('changeSearch', function (data) { // Detect search term change and pass in new search term
-    nTwitterGetTweets(socket, data.term);
-  });
+		nTwitterGetTweets(socket, '#nowplaying');
+	socket.on('changeSearch', function (data) { // Detect search term change and pass in new search term
+		nTwitterGetTweets(socket, data.term);
+	});
 });
 
 // Put a message in the console verifying that the HTTP server is up and running
