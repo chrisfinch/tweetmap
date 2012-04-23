@@ -6,6 +6,12 @@
 
 ------------------------------------------
 
+### Example
+
+An up to date version is viewable here: http://tweetsmap.herokuapp.com/
+
+------------------------------------------
+
 ### Dependancies:
 
 * Node.js 0.6.x
