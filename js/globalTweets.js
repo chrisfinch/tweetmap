@@ -25,7 +25,7 @@ var gTweets = function () {
 		totalTweetsLoc: 0,		
 		goodGeo: 0,
 		badGeo: 0
-	}
+	};
 	this.init();
 };
 
@@ -311,8 +311,7 @@ gTweets.prototype = {
 			i.statsBox.find('.badgeo .num').html(i.stats.badGeo);
 			if (sec == 10) {
 				sec = 0;
-				tSec++;
-				var av = 
+				tSec++; 
 				i.statsBox.find('.av .num').html(Math.round(((i.stats.totalTweetsLoc+i.stats.totalTweetsCo)/tSec)*100)/100);
 			}
 		}
